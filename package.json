@@ -1,7 +1,7 @@
 {
     "name": "ggarek.alignit",
     "title": "Align It!",
-    "description": "A Brackets extension to align assignments and object literals (Hotkey: Ctrl+\)",
+    "description": "A Brackets extension to align assignments and object literals (Hotkey: Ctrl+\\)",
     "homepage": "https://github.com/ggarek/brackets-extension-alignit",
     "version": "0.0.2",
     "author": "Igor Ovsyannikov <garek@mail.ru>(garek@mail.ru)",
