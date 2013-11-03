@@ -5,9 +5,12 @@
 This [Brackets](http://brackets.io) extension allows you to make some beautiful code alignments of object literals and variable assignments.
 
 ### Installation
-1. Go to "Help -> Show extension folder" in Brackets menu
-2. Clone git repository
->> git clone https://github.com/ggarek/brackets-extension-alignit.git user/alignit
+* Select **File > Extension Manager**
+* Click **Install from URL**
+* Enter the url of this repo: 
+ * https://github.com/ggarek/brackets-extension-alignit
+* Click **Install**
+
 
 ### How To Use
 1. Make selection of code range you want to align in the editor
