@@ -18,18 +18,19 @@ This [Brackets](http://brackets.io) extension allows you to make some beautiful 
 #####Example #1:
 This code snippet:
 
-	var a = "hello";
-	var abc = "forget it";
-	var isCanceled = false;
-	var emptyObj = {};
+    var AppInit = brackets.getModule("utils/AppInit"),
+        CommandManager = brackets.getModule("command/CommandManager"),
+        EditorManager = brackets.getModule("editor/EditorManager"),
+        Menus = brackets.getModule("command/Menus");
 
 will be transformed to:
 
-	var a 			= "hello";
-	var abc 	    = "forget it";
-	var isCanceled  = false;
-	var emptyObj 	= {};
-		
+    var AppInit         = brackets.getModule("utils/AppInit"),
+        CommandManager  = brackets.getModule("command/CommandManager"),
+        EditorManager   = brackets.getModule("editor/EditorManager"),
+        Menus           = brackets.getModule("command/Menus");
+
+
 #####Example #3:
 This code snippet:
 
@@ -43,9 +44,9 @@ will be transformed to:
 	var a 			= "hello",
 	    abc 		= "forget it",
 		isCanceled 	= false,
-		emptyObj 	= {};	
+		emptyObj 	= {};
 
-##Soon	
+##Soon
 #####Example #2:
 This code snippet:
 
@@ -62,5 +63,3 @@ will be transformed to:
 	 name 	: "skull",
 	 tags 	: [ "cool", "dark" , "mysterious"],
 	};
-
-IDEA: Smart indent segment on ';'?
