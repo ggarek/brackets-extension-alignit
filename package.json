@@ -1,0 +1,12 @@
+{
+    "name": "ggarek.alignit",
+    "title": "Align objects and assingments",
+    "description": "A Brackets extension to align assignments and object literals",
+    "homepage": "https://github.com/ggarek/brackets-extension-alignit",
+    "version": "0.1.0",
+    "author": "Igor Ovsyannikov <garek@mail.ru>",
+    "license": "MIT",
+    "engines": {
+        "brackets": ">=0.33.0"
+    }
+}
