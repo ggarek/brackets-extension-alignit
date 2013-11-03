@@ -4,9 +4,11 @@
     "description": "A Brackets extension to align assignments and object literals",
     "homepage": "https://github.com/ggarek/brackets-extension-alignit",
     "version": "0.0.1",
-    "author": "Igor Ovsyannikov <garek@mail.ru>",
+    "author": "Igor Ovsyannikov <garek@mail.ru>(garek@mail.ru)",
     "license": "MIT",
     "engines": {
         "brackets": ">=0.33.0"
-    }
+    },
+    "categories" : ["formatting"],
+    "keywords" : ["align", "format"]
 }

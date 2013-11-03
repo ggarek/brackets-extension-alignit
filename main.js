@@ -244,10 +244,9 @@ define(function (require, exports, module) {
 
 
     // Inject the command
-    AppInit.appReady(function () {
-        var menu = Menus.getMenu(Menus.AppMenuBar.EDIT_MENU);
-        CommandManager.register(CMD_NAME, CMD_ID, run);
-        menu.addMenuItem(CMD_ID, CMD_HOTKEYS);
-    });
+    CommandManager.register(CMD_NAME, CMD_ID, run);
+    var menu = Menus.getMenu(Menus.AppMenuBar.EDIT_MENU);
+    menu.addMenuItem(CMD_ID, CMD_HOTKEYS);
 
+    exports.align = align;
 });
