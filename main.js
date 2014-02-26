@@ -63,8 +63,8 @@ define(function (require, exports, module) {
     function run() {
 
         try {
-            var e             = EditorManager.getFocusedEditor(),
-                selection     = e.getSelection();
+            var e         = EditorManager.getFocusedEditor(),
+                selection = e.getSelection();
 
             // IF selection is empty there is nothing to align
             if(selectionEquals(selection.start, selection.end)){
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
     function align(input) {
 
         // split lines
-        var lines = input.match(/.*\n/g),
+        var lines = input.match(/.*\n?/g),
             alignInfo = {
                 // The most far separator position found among all line entries
                 maxColumn : 0,
@@ -172,13 +172,13 @@ define(function (require, exports, module) {
                     // THEN align entry string
                     aligned = getAlignedString(alignInfo, entry);
                 }
-                // ELSE entry doesnt need aligning
-                    else {
-                        // THEN just pass entry as is
-                        aligned = entry.source;
-                    }
+                // ELSE entry does not need aligning
+                else {
+                    // THEN just pass entry as is
+                    aligned = entry.source;
+                }
 
-                // append aligned string to output string
+                // Append aligned string to output string
                 alignInfo.output += aligned;
             });
         }
@@ -226,7 +226,7 @@ define(function (require, exports, module) {
         return modulo === 0 ? number : number + multiplier - modulo;
     }
 
-    // @method Specific predicat to validate entry string
+    // @method Specific predicate to validate entry string
     // @param {line}
     // @returns {Boolean} True if the entry string is valid
     function isLineValid(line) {
