@@ -79,6 +79,11 @@ define(function (require, exports, module) {
 
             // Get text range
             var range = e.document.getRange(selection.start, selection.end);
+            // Check if selection ends on last line
+            if(selection.end.line >= e.lineCount()) {
+                // If so add extra newline
+                range += '\n';
+            }
             // Process text range
             var result = align(range);
             // Replace text range with processed one
