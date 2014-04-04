@@ -1,0 +1,31 @@
+#input
+a=123123,b=123123123,c=113123,d="asdadsd"
+#output
+a = 123123,
+b = 123123123,
+c = 113123,
+d = "asdadsd";
+#input
+one=1,two=2,three=3
+#output
+one   = 1,
+two   = 2,
+three = 3;
+#input
+one=1,two="two",three="three";
+#output
+one   = 1,
+two   = "two",
+three = "three";
+#input
+one=1,two="two",three="t,h;r\ne{e";
+#output
+one   = 1,
+two   = "two",
+three = "t,h;r\ne{e";
+#input
+one=1,two="two",three="thre\"e";
+#output
+one   = 1,
+two   = "two",
+three = "thre\"e";

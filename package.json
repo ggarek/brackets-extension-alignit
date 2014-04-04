@@ -1,0 +1,8 @@
+{
+  "name": "js-alignit-parser",
+  "version": "0.0.1",
+  "devDependencies": {
+    "grunt": "~0.4.3",
+    "grunt-jasmine-node": "~0.1.0"
+  }
+}
