@@ -1,7 +1,7 @@
 #input
-var a=123123,b=123123123,c=113123,d="asdadsd"
+var    a=123123, b=123123123,c=  113123,d="asdadsd"
 #output
 var a = 123123,
-b     = 123123123,
-c     = 113123,
-d     = "asdadsd";
+    b = 123123123,
+    c = 113123,
+    d = "asdadsd";

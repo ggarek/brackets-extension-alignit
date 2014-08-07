@@ -13,8 +13,6 @@ describe('Lexer tokenize operation', function () {
       { data: 'iam892_   = "ada222a{asdsdasd"', tokens: 2 },
     ];
 
-    debugger;
-
     input.forEach(function (el) {
       tokens = lexer.tokenize(el.data)
       expect(tokens.length).toEqual(el.tokens);
