@@ -105,7 +105,18 @@ define(function (require, exports, module) {
                 entries : [],
                 hasEntries : function () { return this.entries.length > 0; },
                 output : ""
-            };
+            },
+            idx1,
+            idx2;
+
+        separator = '=';
+        // Find separator
+        idx1 = lines[0].indexOf(':');
+        idx2 = lines[0].indexOf('=');
+
+        if(idx1 < idx2){
+            separator = ':';
+        }
 
         lines.forEach(function (line, i) {
             var idx = 0,
@@ -122,15 +133,17 @@ define(function (require, exports, module) {
 
             // Create entry to align
             entry = {
-                row : i,
-                source : line,
+                row     : i,
+                source  : line,
                 separator : {
-                    value : separator,
-                    column : idx
+                    value   : separator,
+                    column  : idx
                 },
                 // IF there is no separator in the line, there is no need to align it
                 needAlign : idx > 0
             };
+
+            separator = '=';
 
             // Add entry to array
             alignInfo.entries.push(entry);
