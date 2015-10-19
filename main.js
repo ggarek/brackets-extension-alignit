@@ -107,16 +107,22 @@ define(function (require, exports, module) {
                 output : ""
             },
             idx1,
-            idx2;
+            idx2,
+            messyLinesRx,
+            cleaneLines;
 
         separator = '=';
         // Find separator
         idx1 = lines[0].indexOf(':');
         idx2 = lines[0].indexOf('=');
 
-        if(idx1 < idx2){
+        if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
             separator = ':';
         }
+
+        messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
+        cleaneLines = ' '+separator+' ';
+
 
         lines.forEach(function (line, i) {
             var idx = 0,
@@ -127,6 +133,9 @@ define(function (require, exports, module) {
             if (!isLineValid(line)) {
                 return;
             }
+
+            // on occasion the separator is padded because a variable name has been shorted.
+            line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
 
             // Find separator
             idx = line.indexOf(separator);
@@ -142,8 +151,6 @@ define(function (require, exports, module) {
                 // IF there is no separator in the line, there is no need to align it
                 needAlign : idx > 0
             };
-
-            separator = '=';
 
             // Add entry to array
             alignInfo.entries.push(entry);
