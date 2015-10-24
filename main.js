@@ -51,10 +51,10 @@ define(function (require, exports, module) {
             hard : 2
         },
         alignMode = alignModes.soft,
-        separator = "=",
+        separator = ['=', ':', 'from'],
         indentInfo = {
             char : " ",
-            count : 2
+            count : 4
         },
         stringSeparators = ["\n"],
         op = Object.prototype;
@@ -118,14 +118,18 @@ define(function (require, exports, module) {
             }
 
             // Find separator
-            idx = line.indexOf(separator);
+            var s = separator.length;
+            while (s--) {
+                idx = line.indexOf(separator[s]);
+                if (idx !== -1) break;
+            }
 
             // Create entry to align
             entry = {
                 row : i,
                 source : line,
                 separator : {
-                    value : separator,
+                    value : separator[s],
                     column : idx
                 },
                 // IF there is no separator in the line, there is no need to align it
