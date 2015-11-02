@@ -112,8 +112,8 @@ define(function (require, exports, module) {
             cleaneLines;
 
         // Find separator
-        idx1 = lines[0].replace(/'.*'|".*"/g, '').indexOf(':');
-        idx2 = lines[0].replace(/'.*'|".*"/g, '').indexOf('=');
+        idx1 = lines[0].replace(/'.*?'|".*?"/g, '').indexOf(':');
+        idx2 = lines[0].replace(/'.*?'|".*?"/g, '').indexOf('=');
 
         if(idx1 === -1 && idx2 === -1){
             separator = '=';
