@@ -111,18 +111,20 @@ define(function (require, exports, module) {
             messyLinesRx,
             cleaneLines;
 
-        separator = '=';
         // Find separator
-        idx1 = lines[0].indexOf(':');
-        idx2 = lines[0].indexOf('=');
+        idx1 = lines[0].replace(/'.*'|".*"/g, '').indexOf(':');
+        idx2 = lines[0].replace(/'.*'|".*"/g, '').indexOf('=');
 
-        if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
+        if(idx1 === -1 && idx2 === -1){
+            separator = '=';
+        }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
             separator = ':';
+        }else{
+            separator = '=';
         }
 
         messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
         cleaneLines = ' '+separator+' ';
-
 
         lines.forEach(function (line, i) {
             var idx = 0,
