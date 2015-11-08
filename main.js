@@ -97,44 +97,49 @@ define(function (require, exports, module) {
         // split lines
         var lines = input.match(/.*\n?/g),
             alignInfo = {
-                // The most far separator position found among all line entries
-                maxColumn : 0,
-                // Ethalon entry
-                ethalon : null,
                 // Array of entries
                 entries : [],
                 hasEntries : function () { return this.entries.length > 0; },
                 output : ""
             },
-            idx1,
-            idx2,
-            messyLinesRx,
-            cleaneLines;
+            maxColumn = { val : undefined};
 
-        // Find separator
-        idx1 = lines[0].replace(/'.*?'|".*?"/g, '').indexOf(':');
-        idx2 = lines[0].replace(/'.*?'|".*?"/g, '').indexOf('=');
-
-        if(idx1 === -1 && idx2 === -1){
-            separator = '=';
-        }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
-            separator = ':';
-        }else{
-            separator = '=';
-        }
-
-        messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
-        cleaneLines = ' '+separator+' ';
 
         lines.forEach(function (line, i) {
             var idx = 0,
+                idx1,
+                idx2,
+                messyLinesRx,
+                cleaneLines,
+                newSeparator,
                 entry,
                 newEthalonSeparatorColumn = 0;
 
-            // Skip invalid lines
-            if (!isLineValid(line)) {
+            // Find separator
+            idx1 = line.replace(/'.*?'|".*?"/g, '').indexOf(':');
+            idx2 = line.replace(/'.*?'|".*?"/g, '').indexOf('=');
+
+            if(idx1 === -1 && idx2 === -1){
+                newSeparator = '=';
+            }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
+                newSeparator = ':';
+            }else{
+                newSeparator = '=';
+            }
+
+            if(!isLineValid(line) || newSeparator === undefined){
+                separator = undefined;
+                maxColumn = { val : 0};
                 return;
             }
+
+            if(separator !== newSeparator){
+                separator = newSeparator;
+                maxColumn = { val : 0};
+            }
+
+            messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
+            cleaneLines = ' '+separator+' ';
 
             // on occasion the separator is padded because a variable name has been shorted.
             line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
@@ -151,25 +156,21 @@ define(function (require, exports, module) {
                     column  : idx
                 },
                 // IF there is no separator in the line, there is no need to align it
-                needAlign : idx > 0
+                needAlign : idx > 0,
+                maxColumn : maxColumn
             };
 
             // Add entry to array
             alignInfo.entries.push(entry);
 
-            // Update ethalon entry (Ethalon entry is an entry with the far most separator)
-            if (!alignInfo.ethalon || alignInfo.ethalon.separator.column < idx) {
-                alignInfo.ethalon = entry;
-                alignInfo.maxColumn = alignInfo.ethalon.separator.column;
+            if (maxColumn.val < idx) {
+                maxColumn.val =  makeMultipleOf(entry.separator.column, indentInfo.count);
             }
 
         });
 
         // IF there is something to align
         if (alignInfo.hasEntries()) {
-            // Update the most far separator column, so that it is multiple of indentInfo.count
-            alignInfo.maxColumn = makeMultipleOf(alignInfo.maxColumn, indentInfo.count);
-
             alignInfo.entries.forEach(function (entry) {
                 var d,
                     alignSubString,
@@ -179,18 +180,7 @@ define(function (require, exports, module) {
                 // Also skip all lines where separator is in the same place as in ethalon
 
                 // IF it is ethalon (line with most far separator position)
-                if (entry === alignInfo.ethalon) {
-                    // AND ethalon separator position is less then max separator position
-                    if (alignInfo.maxColumn > entry.separator.column) {
-                        // THEN align ethalon string
-                        aligned = getAlignedString(alignInfo, entry);
-                    } else {
-                        // Pass ethalon string as is
-                        aligned = entry.source;
-                    }
-                }
-                // ELSE IF entry contains separator and needs aligning
-                else if (entry.needAlign && entry.separator.column < alignInfo.maxColumn) {
+               if (entry.needAlign) {
                     // THEN align entry string
                     aligned = getAlignedString(alignInfo, entry);
                 }
@@ -205,6 +195,8 @@ define(function (require, exports, module) {
             });
         }
 
+        maxColumn = { val : 0};
+
         return alignInfo.output;
     }
 
@@ -217,7 +209,8 @@ define(function (require, exports, module) {
             alignSubString,
             aligned;
 
-        d = alignInfo.maxColumn - entry.separator.column;
+        d = entry.maxColumn.val - entry.separator.column;
+
         alignSubString = repeatString(indentInfo.char, d) + entry.separator.value;
         return entry.source.replace(entry.separator.value, alignSubString);
     }
@@ -228,15 +221,11 @@ define(function (require, exports, module) {
     // @returns {String} String, containing input string n times
     function repeatString(str, times) {
         var base = "", res = str, i = 0;
-        for (i = times; i > 1; i >>= 1) {
-            if (i & 1) {
+        for (i = 0; i < times; i +=1 ) {
                 base += res;
-            }
-
-            res += res;
         }
 
-        return res + base;
+        return base;
     }
 
     // @method Adds up input number to be multiple of multiplier
