@@ -127,25 +127,27 @@ define(function (require, exports, module) {
                 newSeparator = '=';
             }
 
-            if(!isLineValid(line) || newSeparator === undefined){
-                separator = undefined;
-                maxColumn = { val : 0};
+            if(!isLineValid(line)){
                 return;
             }
+            if((/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) === false){
+                if(separator !== newSeparator){
+                    separator = newSeparator;
+                    maxColumn = { val : 0};
+                }
 
-            if(separator !== newSeparator){
-                separator = newSeparator;
-                maxColumn = { val : 0};
+                messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
+                cleaneLines = ' '+separator+' ';
+
+                // on occasion the separator is padded because a variable name has been shorted.
+                line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
+
+                // Find separator
+                idx = line.indexOf(separator);
+
+            }else{
+                idx = 0;
             }
-
-            messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
-            cleaneLines = ' '+separator+' ';
-
-            // on occasion the separator is padded because a variable name has been shorted.
-            line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
-
-            // Find separator
-            idx = line.indexOf(separator);
 
             // Create entry to align
             entry = {
@@ -167,6 +169,10 @@ define(function (require, exports, module) {
                 maxColumn.val =  makeMultipleOf(entry.separator.column, indentInfo.count);
             }
 
+            if((/\{$/).test(line.replace(/\s+/g, ''))){
+                separator = undefined;
+                maxColumn = { val : 0};
+            }
         });
 
         // IF there is something to align
