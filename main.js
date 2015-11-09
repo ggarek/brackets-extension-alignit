@@ -102,13 +102,14 @@ define(function (require, exports, module) {
                 hasEntries : function () { return this.entries.length > 0; },
                 output : ""
             },
-            maxColumn = { val : undefined};
+            maxColumn = { val : 0};
 
 
         lines.forEach(function (line, i) {
             var idx = 0,
                 idx1,
                 idx2,
+                idx3,
                 messyLinesRx,
                 cleaneLines,
                 newSeparator,
@@ -118,11 +119,14 @@ define(function (require, exports, module) {
             // Find separator
             idx1 = line.replace(/'.*?'|".*?"/g, '').indexOf(':');
             idx2 = line.replace(/'.*?'|".*?"/g, '').indexOf('=');
+            idx3 = line.replace(/'.*?'|".*?"/g, '').indexOf(',');
 
-            if(idx1 === -1 && idx2 === -1){
+            if(idx1 === -1 && idx2 === -1 && idx3 === -1){
                 newSeparator = '=';
             }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
                 newSeparator = ':';
+            }else if(idx3 !== -1 && /,$/.test(line) === false && idx1 === -1 && idx2 === -1){
+                newSeparator = ',';
             }else{
                 newSeparator = '=';
             }
@@ -137,7 +141,12 @@ define(function (require, exports, module) {
                 }
 
                 messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
-                cleaneLines = ' '+separator+' ';
+
+                if(separator === ','){
+                    cleaneLines = separator+' ';
+                }else{
+                    cleaneLines = ' '+separator+' ';
+                }
 
                 // on occasion the separator is padded because a variable name has been shorted.
                 line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
@@ -216,8 +225,12 @@ define(function (require, exports, module) {
             aligned;
 
         d = entry.maxColumn.val - entry.separator.column;
+        if(entry.separator.value === ','){
+            alignSubString = entry.separator.value + repeatString(indentInfo.char, d);
+        }else{
+            alignSubString = repeatString(indentInfo.char, d) + entry.separator.value;
+        }
 
-        alignSubString = repeatString(indentInfo.char, d) + entry.separator.value;
         return entry.source.replace(entry.separator.value, alignSubString);
     }
 
