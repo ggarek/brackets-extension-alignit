@@ -67,9 +67,9 @@ define(function (require, exports, module) {
                 selection = e.getSelection();
 
             // IF selection is empty there is nothing to align
-            if(selectionEquals(selection.start, selection.end)){
-                return;
-            }
+//            if(selectionEquals(selection.start, selection.end)){
+//                return;
+//            }
 
             // Set start and end to describe whole strings,
             // if for example selection contains only part of a string
