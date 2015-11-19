@@ -142,7 +142,7 @@ define(function (require, exports, module) {
             if(!isLineValid(line)){
                 return;
             }
-            if(newSeparator === '=' && (line.indexOf(newSeparator) === line.indexOf('===') || line.indexOf(newSeparator) === line.indexOf('=='))){
+            if(newSeparator === '=' && (line.indexOf(newSeparator) === line.indexOf('===') || line.indexOf(newSeparator) === line.indexOf('==')|| line.indexOf(newSeparator) === line.indexOf('!='))){
                 idx = 0;
             }else if(newSeparator !== undefined && (/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) === false){
                 if(separator !== newSeparator){
