@@ -117,9 +117,9 @@ define(function (require, exports, module) {
                 newEthalonSeparatorColumn = 0;
 
             // Find separator
-            idx1 = line.replace(/'.*?'|".*?"|[/].+[/]/g, '').indexOf(':');
-            idx2 = line.replace(/'.*?'|".*?"|[/].+[/]/g, '').indexOf('=');
-            idx3 = line.replace(/'.*?'|".*?"|[/].+[/]/g, '').indexOf(',');
+            idx1 = line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(':');
+            idx2 = line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf('=');
+            idx3 = line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(',');
 
             if(idx1 === -1 && idx2 === -1 && ((idx3 && /,\n$/.test(line)) || idx3 === -1)){
                 newSeparator = undefined;
@@ -150,20 +150,25 @@ define(function (require, exports, module) {
                     maxColumn = { val : 0};
                 }
 
-                messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
-
-                if(separator === ','){
-                    cleaneLines = separator+' ';
+                console.log(line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(separator), line.indexOf(separator));
+                if(line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(separator) !== line.indexOf(separator)){
+                    console.log('here');
+                    idx = 0;
                 }else{
-                    cleaneLines = ' $1'+separator+' ';
+                    messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
+
+                    if(separator === ','){
+                        cleaneLines = separator+' ';
+                    }else{
+                        cleaneLines = ' $1'+separator+' ';
+                    }
+
+                    // on occasion the separator is padded because a variable name has been shorted.
+                    line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
+
+                    // Find separator
+                    idx = line.indexOf(separator);
                 }
-
-                // on occasion the separator is padded because a variable name has been shorted.
-                line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
-
-                // Find separator
-                idx = line.indexOf(separator);
-
             }else{
                 idx = 0;
             }
@@ -197,7 +202,7 @@ define(function (require, exports, module) {
             // Add entry to array
             alignInfo.entries.push(entry);
 
-            if (maxColumn.val < idx) {
+            if (maxColumn.val < idx && idx > 0) {
                 maxColumn.val =  makeMultipleOf(entry.separator.column, indentInfo.count);
             }
 
