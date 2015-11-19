@@ -117,11 +117,11 @@ define(function (require, exports, module) {
                 newEthalonSeparatorColumn = 0;
 
             // Find separator
-            idx1 = line.replace(/'.*?'|".*?"/g, '').indexOf(':');
-            idx2 = line.replace(/'.*?'|".*?"/g, '').indexOf('=');
-            idx3 = line.replace(/'.*?'|".*?"/g, '').indexOf(',');
+            idx1 = line.replace(/'.*?'|".*?"|[/].+[/]/g, '').indexOf(':');
+            idx2 = line.replace(/'.*?'|".*?"|[/].+[/]/g, '').indexOf('=');
+            idx3 = line.replace(/'.*?'|".*?"|[/].+[/]/g, '').indexOf(',');
 
-            if(idx1 === -1 && idx2 === -1 && idx3 === -1){
+            if(idx1 === -1 && idx2 === -1 && ((idx3 && /,\n$/.test(line)) || idx3 === -1)){
                 newSeparator = undefined;
                 if((/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) || line.replace(/\s+/, '') === '') {
                     separator = newSeparator;
@@ -180,7 +180,7 @@ define(function (require, exports, module) {
                 needAlign : idx > 0,
                 maxColumn : maxColumn
             };
-            
+
             if(idx > 0){
                 if(separator === '=' && /\+=/.test(line)){
                     if((line.indexOf(separator) - 1) === line.indexOf('+=')){
@@ -193,7 +193,7 @@ define(function (require, exports, module) {
                     entry.needAlign = entry.separator.column > 0;
                 }
             }
-            
+
             // Add entry to array
             alignInfo.entries.push(entry);
 
