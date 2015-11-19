@@ -185,7 +185,7 @@ define(function (require, exports, module) {
             };
 
             if(idx > 0){
-                if(separator === '=' && /\+=/.test(line)){
+                if(separator === '=' && /[+-]=/.test(line)){
                     if((line.indexOf(separator) - 1) === line.indexOf('+=')){
                         entry.separator.value = '+=';
                         entry.separator.column = line.indexOf(entry.separator.value) + 1;
