@@ -150,9 +150,7 @@ define(function (require, exports, module) {
                     maxColumn = { val : 0};
                 }
 
-                console.log(line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(separator), line.indexOf(separator));
-                if(line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(separator) !== line.indexOf(separator)){
-                    console.log('here');
+                if(line.replace(/\/.+\//g, '').indexOf(separator) !== line.indexOf(separator)){
                     idx = 0;
                 }else{
                     messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
