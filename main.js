@@ -122,7 +122,11 @@ define(function (require, exports, module) {
             idx3 = line.replace(/'.*?'|".*?"/g, '').indexOf(',');
 
             if(idx1 === -1 && idx2 === -1 && idx3 === -1){
-                newSeparator = '=';
+                newSeparator = undefined;
+                if((/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) || line.replace(/\s+/, '') === '') {
+                    separator = newSeparator;
+                    maxColumn = { val : 0};
+                }
             }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
                 newSeparator = ':';
             }else if(idx3 !== -1 && /,\n$/.test(line) === false && idx1 === -1 && idx2 === -1){
@@ -138,7 +142,7 @@ define(function (require, exports, module) {
             if(!isLineValid(line)){
                 return;
             }
-            if(newSeparator === '=' && line.indexOf(newSeparator) === line.indexOf('===')){
+            if(newSeparator === '=' && (line.indexOf(newSeparator) === line.indexOf('===') || line.indexOf(newSeparator) === line.indexOf('=='))){
                 idx = 0;
             }else if(newSeparator !== undefined && (/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) === false){
                 if(separator !== newSeparator){
