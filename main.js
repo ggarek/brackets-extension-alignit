@@ -188,12 +188,8 @@ define(function (require, exports, module) {
                     }
                     entry.needAlign = entry.separator.column > 0;
                 }
-                console.log('here');
             }
 
-            console.log('a', entry);
-
-            
             // Add entry to array
             alignInfo.entries.push(entry);
 
