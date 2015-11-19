@@ -146,7 +146,7 @@ define(function (require, exports, module) {
                     maxColumn = { val : 0};
                 }
 
-                messyLinesRx = new RegExp('\\s*([+-]+)' + separator + '\\s*');
+                messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
 
                 if(separator === ','){
                     cleaneLines = separator+' ';
@@ -189,7 +189,7 @@ define(function (require, exports, module) {
                     entry.needAlign = entry.separator.column > 0;
                 }
             }
-
+            
             // Add entry to array
             alignInfo.entries.push(entry);
 
