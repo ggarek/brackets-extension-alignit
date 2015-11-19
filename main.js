@@ -125,27 +125,33 @@ define(function (require, exports, module) {
                 newSeparator = '=';
             }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
                 newSeparator = ':';
-            }else if(idx3 !== -1 && /,$/.test(line) === false && idx1 === -1 && idx2 === -1){
+            }else if(idx3 !== -1 && /,\n$/.test(line) === false && idx1 === -1 && idx2 === -1){
                 newSeparator = ',';
             }else{
                 newSeparator = '=';
             }
 
+            if(newSeparator === ',' && /,\n$/.test(line)){
+                newSeparator = undefined;
+            }
+
             if(!isLineValid(line)){
                 return;
             }
-            if((/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) === false){
+            if(newSeparator === '=' && line.indexOf(newSeparator) === line.indexOf('===')){
+                idx = 0;
+            }else if(newSeparator !== undefined && (/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) === false){
                 if(separator !== newSeparator){
                     separator = newSeparator;
                     maxColumn = { val : 0};
                 }
 
-                messyLinesRx = new RegExp('\\s*' + separator + '\\s*');
+                messyLinesRx = new RegExp('\\s*([+-]+)' + separator + '\\s*');
 
                 if(separator === ','){
                     cleaneLines = separator+' ';
                 }else{
-                    cleaneLines = ' '+separator+' ';
+                    cleaneLines = ' $1'+separator+' ';
                 }
 
                 // on occasion the separator is padded because a variable name has been shorted.
@@ -170,7 +176,24 @@ define(function (require, exports, module) {
                 needAlign : idx > 0,
                 maxColumn : maxColumn
             };
+            
+            if(idx > 0){
+                if(separator === '=' && /\+=/.test(line)){
+                    if((line.indexOf(separator) - 1) === line.indexOf('+=')){
+                        entry.separator.value = '+=';
+                        entry.separator.column = line.indexOf(entry.separator.value) + 1;
+                    }else if((line.indexOf(separator) - 1) === line.indexOf('-=')){
+                        entry.separator.value = '-=';
+                        entry.separator.column = line.indexOf(entry.separator.value) + 1;
+                    }
+                    entry.needAlign = entry.separator.column > 0;
+                }
+                console.log('here');
+            }
 
+            console.log('a', entry);
+
+            
             // Add entry to array
             alignInfo.entries.push(entry);
 
