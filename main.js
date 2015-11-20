@@ -117,9 +117,9 @@ define(function (require, exports, module) {
                 newEthalonSeparatorColumn = 0;
 
             // Find separator
-            idx1 = line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(':');
-            idx2 = line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf('=');
-            idx3 = line.replace(/'.*?'|".*?"|\/.+\//g, '').indexOf(',');
+            idx1 = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf(':');
+            idx2 = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf('=');
+            idx3 = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf(',');
 
             if(idx1 === -1 && idx2 === -1 && ((idx3 && /,\n$/.test(line)) || idx3 === -1)){
                 newSeparator = undefined;
@@ -150,23 +150,20 @@ define(function (require, exports, module) {
                     maxColumn = { val : 0};
                 }
 
-                if(line.replace(/\/.+\//g, '').indexOf(separator) !== line.indexOf(separator)){
-                    idx = 0;
+
+                messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
+
+                if(separator === ','){
+                    cleaneLines = separator+' ';
                 }else{
-                    messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
-
-                    if(separator === ','){
-                        cleaneLines = separator+' ';
-                    }else{
-                        cleaneLines = ' $1'+separator+' ';
-                    }
-
-                    // on occasion the separator is padded because a variable name has been shorted.
-                    line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
-
-                    // Find separator
-                    idx = line.indexOf(separator);
+                    cleaneLines = ' $1'+separator+' ';
                 }
+
+                // on occasion the separator is padded because a variable name has been shorted.
+                line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
+
+                // Find separator
+                idx = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf(separator);
             }else{
                 idx = 0;
             }
