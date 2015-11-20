@@ -67,9 +67,9 @@ define(function (require, exports, module) {
                 selection = e.getSelection();
 
             // IF selection is empty there is nothing to align
-            if(selectionEquals(selection.start, selection.end)){
-                return;
-            }
+//            if(selectionEquals(selection.start, selection.end)){
+//                return;
+//            }
 
             // Set start and end to describe whole strings,
             // if for example selection contains only part of a string
@@ -97,57 +97,118 @@ define(function (require, exports, module) {
         // split lines
         var lines = input.match(/.*\n?/g),
             alignInfo = {
-                // The most far separator position found among all line entries
-                maxColumn : 0,
-                // Ethalon entry
-                ethalon : null,
                 // Array of entries
                 entries : [],
                 hasEntries : function () { return this.entries.length > 0; },
                 output : ""
-            };
+            },
+            maxColumn = { val : 0};
+
 
         lines.forEach(function (line, i) {
             var idx = 0,
+                idx1,
+                idx2,
+                idx3,
+                messyLinesRx,
+                cleaneLines,
+                newSeparator,
                 entry,
                 newEthalonSeparatorColumn = 0;
 
-            // Skip invalid lines
-            if (!isLineValid(line)) {
-                return;
+            // Find separator
+            idx1 = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf(':');
+            idx2 = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf('=');
+            idx3 = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf(',');
+
+            if(idx1 === -1 && idx2 === -1 && ((idx3 && /,\n$/.test(line)) || idx3 === -1)){
+                newSeparator = undefined;
+                if((/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) || line.replace(/\s+/, '') === '') {
+                    separator = newSeparator;
+                    maxColumn = { val : 0};
+                }
+            }else if(idx1 !== -1 && idx2 !== -1 && idx1 < idx2 || idx1 !== -1 && idx2 === -1){
+                newSeparator = ':';
+            }else if(idx3 !== -1 && /,\n$/.test(line) === false && idx1 === -1 && idx2 === -1){
+                newSeparator = ',';
+            }else{
+                newSeparator = '=';
             }
 
-            // Find separator
-            idx = line.indexOf(separator);
+            if(newSeparator === ',' && /,\n$/.test(line)){
+                newSeparator = undefined;
+            }
+
+            if(!isLineValid(line)){
+                return;
+            }
+            if(newSeparator === '=' && (line.indexOf(newSeparator) === line.indexOf('===') || line.indexOf(newSeparator) === line.indexOf('==')|| line.indexOf(newSeparator) === (line.indexOf('!=')+1) )){
+                idx = 0;
+            }else if(newSeparator !== undefined && (/^\/\/|^\/\*/).test(line.replace(/\s+/g, '')) === false){
+                if(separator !== newSeparator){
+                    separator = newSeparator;
+                    maxColumn = { val : 0};
+                }
+
+
+                messyLinesRx = new RegExp('\\s*([+-]*)' + separator + '\\s*');
+
+                if(separator === ','){
+                    cleaneLines = separator+' ';
+                }else{
+                    cleaneLines = ' $1'+separator+' ';
+                }
+
+                // on occasion the separator is padded because a variable name has been shorted.
+                line = line.replace(messyLinesRx, cleaneLines); // just the first one don't want ot mess with any strings
+
+                // Find separator
+                idx = line.replace(/'.*?'|".*?"|\/.+\//g, function(m){ return Array(m.length-1).join('#') }).indexOf(separator);
+            }else{
+                idx = 0;
+            }
 
             // Create entry to align
             entry = {
-                row : i,
-                source : line,
+                row     : i,
+                source  : line,
                 separator : {
-                    value : separator,
-                    column : idx
+                    value   : separator,
+                    column  : idx
                 },
                 // IF there is no separator in the line, there is no need to align it
-                needAlign : idx > 0
+                needAlign : idx > 0,
+                maxColumn : maxColumn
             };
+
+            if(idx > 0){
+                if(separator === '=' && /[+-]=/.test(line)){
+                    if((line.indexOf(separator) - 1) === line.indexOf('+=')){
+                        entry.separator.value = '+=';
+                        entry.separator.column = line.indexOf(entry.separator.value) + 1;
+                    }else if((line.indexOf(separator) - 1) === line.indexOf('-=')){
+                        entry.separator.value = '-=';
+                        entry.separator.column = line.indexOf(entry.separator.value) + 1;
+                    }
+                    entry.needAlign = entry.separator.column > 0;
+                }
+            }
 
             // Add entry to array
             alignInfo.entries.push(entry);
 
-            // Update ethalon entry (Ethalon entry is an entry with the far most separator)
-            if (!alignInfo.ethalon || alignInfo.ethalon.separator.column < idx) {
-                alignInfo.ethalon = entry;
-                alignInfo.maxColumn = alignInfo.ethalon.separator.column;
+            if (maxColumn.val < idx && idx > 0) {
+                maxColumn.val =  makeMultipleOf(entry.separator.column, indentInfo.count);
             }
 
+            if((/\{$/).test(line.replace(/\s+/g, ''))){
+                separator = undefined;
+                maxColumn = { val : 0};
+            }
         });
 
         // IF there is something to align
         if (alignInfo.hasEntries()) {
-            // Update the most far separator column, so that it is multiple of indentInfo.count
-            alignInfo.maxColumn = makeMultipleOf(alignInfo.maxColumn, indentInfo.count);
-
             alignInfo.entries.forEach(function (entry) {
                 var d,
                     alignSubString,
@@ -157,18 +218,7 @@ define(function (require, exports, module) {
                 // Also skip all lines where separator is in the same place as in ethalon
 
                 // IF it is ethalon (line with most far separator position)
-                if (entry === alignInfo.ethalon) {
-                    // AND ethalon separator position is less then max separator position
-                    if (alignInfo.maxColumn > entry.separator.column) {
-                        // THEN align ethalon string
-                        aligned = getAlignedString(alignInfo, entry);
-                    } else {
-                        // Pass ethalon string as is
-                        aligned = entry.source;
-                    }
-                }
-                // ELSE IF entry contains separator and needs aligning
-                else if (entry.needAlign && entry.separator.column < alignInfo.maxColumn) {
+               if (entry.needAlign) {
                     // THEN align entry string
                     aligned = getAlignedString(alignInfo, entry);
                 }
@@ -183,6 +233,8 @@ define(function (require, exports, module) {
             });
         }
 
+        maxColumn = { val : 0};
+
         return alignInfo.output;
     }
 
@@ -195,8 +247,13 @@ define(function (require, exports, module) {
             alignSubString,
             aligned;
 
-        d = alignInfo.maxColumn - entry.separator.column;
-        alignSubString = repeatString(indentInfo.char, d) + entry.separator.value;
+        d = entry.maxColumn.val - entry.separator.column;
+        if(entry.separator.value === ','){
+            alignSubString = entry.separator.value + repeatString(indentInfo.char, d);
+        }else{
+            alignSubString = repeatString(indentInfo.char, d) + entry.separator.value;
+        }
+
         return entry.source.replace(entry.separator.value, alignSubString);
     }
 
@@ -206,15 +263,11 @@ define(function (require, exports, module) {
     // @returns {String} String, containing input string n times
     function repeatString(str, times) {
         var base = "", res = str, i = 0;
-        for (i = times; i > 1; i >>= 1) {
-            if (i & 1) {
+        for (i = 0; i < times; i +=1 ) {
                 base += res;
-            }
-
-            res += res;
         }
 
-        return res + base;
+        return base;
     }
 
     // @method Adds up input number to be multiple of multiplier
